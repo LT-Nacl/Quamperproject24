@@ -1,4 +1,4 @@
-import pyvisa # only run this after you are plugged into the power supplies
+import pyvisa # only run this after you are plugged into the power supplies ... NI-VISA and pyvisa install required, ask Alex
 import time 
 
 def consolebrick(): # just for formatting
