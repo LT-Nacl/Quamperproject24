@@ -1,5 +1,14 @@
 import pyvisa # only run this after you are plugged into the power supplies ... NI-VISA and pyvisa install required, ask Alex
 import time 
+import bluetooth 
+import json
+
+#sensor_1 = '' # we have to find these # I have no way of knowing this works untill we get the chips
+#sensor_2 = '' # same goes for all bluetooth/sensor code 
+#socket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+#socket.connect((sensor_address, 1))
+#socket.connect((sensor_address, 2))
+
 
 def consolebrick(): # just for formatting
     print('\n')
