@@ -39,12 +39,12 @@ consolebrick()
 
 #ts finna get messy
 
-def powersup(voltage, currentlim, time, device): # time is redundant at pat's request, easily reimplimented
+def powersup(voltage, currentlim, device):
     raw = ('*RST#'
     ':SOUR:FUNC VOLT#'
     f':SOUR:VOLT {voltage}#'
     f':SOUR:VOLT:ILIM {currentlim}#'
-    f':TRIG:LOAD "SimpleLoop", {time}, 1#'
+    f':TRIG:LOAD "SimpleLoop", 1, 1#'
     ':OUTP ON#'
     ':INIT#'
     '*WAI#'
@@ -57,30 +57,54 @@ def powersup(voltage, currentlim, time, device): # time is redundant at pat's re
         device.write(i)    # this method helped with debugging/learning the commands. change if you
                            # deem it fit.
 
-# n = 0
-# vals = []
-#while n < len(devices): # old device by device setup, readd if you want
- #   print('device #' + str(n + 1) + ":\n")
-    #v = float(input("voltage: \n"))
-    #i = float(input("current: \n"))
-   # t = float(input("seconds: \n"))
-  #  vals.append([v, i, t])
-   # n+=1
-#consolebrick()
-#n = 0
-#while n < len(devices):
- #   powersup(vals[n][0],vals[n][1],vals[n][2],devices[n])
-  #  print('device ' + str(n + 1) + ' initiated!\n')
-#    n+=1
-
-
-while True: #I am about to entirely redo this segment to work with vectors, and change current vs voltage
-    x = input("update: [exit,deviceindex,voltage]")
-    parsed = x.split(",")
-    if int(parsed[0]) == 1:
-        devices[int(parsed[1])].write(':OUTP OFF')
+def VectorWrite(i,j,k): #floats < 1, only
+    if len(devices) != 3:
+        print('\nWarning! Incorrect number of supplies!\n')
     else:
-        powersup(float(parsed[2]),1,1,devices[int(parsed[1])])
+        vector = [i,j,k]
+        count = 0
+        while count < 4:
+            powersup(20,vector[count],devices[count]) #high v limit just incase, tune if it doesn't work. I can't do that without the supplies
+
+def updatesupply(): #recursively """update""" the """"""CLI"""""""
+    consolebrick()
+    x = int(input("1. Turn off a supply\n2. Configure a supply\n3. Vector input\n4. Manual SCPI send\n"))
+    if x == 1: # this should probably be a switch 
+        command = int(input("device index:\n"))
+        devices[command].write(':OUTP OFF')
+        updatesupply()
+    if x == 2:
+        d = int(input("device index: "))
+        v = float(input("voltage: "))
+        i = float(input("current: "))
+        powersup(v,i,d)
+        updatesupply()
+    if x == 3:
+        i = float(input("i: "))
+        j = float(input("j: "))
+        k = float(input("k: "))
+        VectorWrite(i,j,k)
+        updatesupply()
+    if x == 4:
+        query = bool(input("query?: "))
+        message = input("command: ")
+        ind = input("device index: ")
+        if query:
+            device[ind].query(message)
+        else:
+            device[ind].write(message)
+        updatesupply()
+
+updatesupply()
+
+
+#while True: #I [did] entirely redo this segment to work with vectors, and change current vs voltage
+ #   x = input("update: [exit,deviceindex,voltage]")
+  #  parsed = x.split(",")
+   # if int(parsed[0]) == 1:
+    #    devices[int(parsed[1])].write(':OUTP OFF')
+     #else:
+        #powersup(float(parsed[2]),1,devices[int(parsed[1])])
 
             #for those unfortunate enough to work with my code:
             #When testing the update, follow to format:
