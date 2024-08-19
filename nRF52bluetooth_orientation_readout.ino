@@ -12,7 +12,6 @@ String message = "Init!";
 
 //IMU setup
 LSM6DS3 myIMU(I2C_MODE, 0x6A);
-const float RAD_TO_DEG = 180.0 / M_PI;
 float gx, gy, gz;
 unsigned long lastTime;
 float pitch = 0, roll = 0, yaw = 0;
@@ -66,19 +65,15 @@ void loop() {
   roll += gy * dt;
   yaw += gz * dt;
 
-  float pitch_deg = pitch;
-  float roll_deg = roll;
-  float yaw_deg = yaw;
-
-  pitch_deg = fmod(pitch_deg, 360.0);
-  roll_deg = fmod(roll_deg, 360.0);
-  yaw_deg = fmod(yaw_deg, 360.0);
+  pitch = fmod(pitch, 360.0);
+  roll = fmod(roll, 360.0);
+  yaw = fmod(yaw, 360.0);
 
   static unsigned long lastUpdate = 0;
   unsigned long currentMillis = millis();
 
-
-  message = String(pitch_deg) + ',' + String(roll_deg) + ',' + String(yaw_deg);
+  //ids so python split method can be called and sensors are easily distinguised
+  message = 'ID1,' + String(pitch) + ',' + String(roll) + ',' + String(yaw);
   if (currentMillis - lastUpdate >= 200) {
     lastUpdate = currentMillis;
     myCharacteristic.setValue(message);
