@@ -1,29 +1,19 @@
 ####                                                        ####
 #### UNFINISHED :: DO NOT RUN WITH > 3 SUPPLIES (or at all) ####
-####        COMPLETELY UNTESTED POWERSUPPLY FUNCTIONS       ####
-
-
-#### TODO [highest to lowest priority] ####
-
-#### 1. SET UP WIRING
-#### 2. FIX VECTOR ADJUST TO USE TRIG (DO THE MATH RIGHT!)
-#### 3. FIX POWER SUPPLY ORDERING
-#### 4. WAY TO ADJUST VALUES 
-#### 5. CHANGE PID WEIGHTS 
-#### 6. SENSOR RANGE RESTRAINTS
+####        COMPLETELY UNTESTED POWERSUPPLY CODE            ####
 
 
 import time
 import pyvisa
 import asyncio
 from bleak import BleakClient
-from numpy import matmul
+import numpy
 ax = 0.0
 ay = 0.0
 az = 0.0
 ###PID WEIGHTS###
-pgain = 1 
-igain = 1 
+pgain = 1
+igain = 1
 dgain = 1
 ###TUNE THESE#### please :)
 # Define the UUIDs of the BLE service and characteristic
@@ -41,6 +31,42 @@ def consolebrick(): # just for formatting #
         print(a*30)
     print('\n')
 
+def rotation_matrix_x(angle_degrees):
+    angle_radians = np.radians(angle_degrees)
+    return [
+        [1, 0, 0],
+        [0, np.cos(angle_radians), -np.sin(angle_radians)],
+        [0, np.sin(angle_radians), np.cos(angle_radians)]
+    ]
+
+def rotation_matrix_y(angle_degrees):
+    angle_radians = np.radians(angle_degrees)
+    return [
+        [np.cos(angle_radians), 0, np.sin(angle_radians)],
+        [0, 1, 0],
+        [-np.sin(angle_radians), 0, np.cos(angle_radians)]
+    ]
+
+def rotation_matrix_z(angle_degrees):
+    angle_radians = np.radians(angle_degrees)
+    return [
+        [np.cos(angle_radians), -np.sin(angle_radians), 0],
+        [np.sin(angle_radians), np.cos(angle_radians), 0],
+        [0, 0, 1]
+    ]
+
+def rotate_vector(vector, adjustx, adjusty, adjustz):
+    R_x = rotation_matrix_x(adjustx)
+    R_y = rotation_matrix_y(adjusty)
+    R_z = rotation_matrix_z(adjustz)
+
+    # Sequentially apply the rotation matrices
+    rotated_vector = np.dot(R_x, vector)
+    rotated_vector = np.dot(R_y, rotated_vector)
+    rotated_vector = np.dot(R_z, rotated_vector)
+
+    return rotated_vector
+
 
 #####POWER CONTROL#####
 def VectorWrite(i,j,k,sec): #floats < 1, only
@@ -48,8 +74,8 @@ def VectorWrite(i,j,k,sec): #floats < 1, only
 
     if sec:
         start = 3
-    else: 
-        start = 0 
+    else:
+        start = 0
     count = 0
     while count < 3:
         powersup(20,vector[count],devices[count+start])
@@ -122,7 +148,7 @@ async def run(addresses):
                     print(f"Received data from {client.address}: {data.decode('utf-8')}")
                     data_str = data.decode('utf-8')
                     data_list = data_str.split(',')
-                    n = 0 
+                    n = 0
                     while n < len(data_list):
                         if n > 0:
                             data_list[n] = float(data_list[n])
@@ -138,27 +164,13 @@ async def run(addresses):
                     adjusty = ycon.PI(sensor1[0],sensor2[0])
                     adjustz = zcon.PI(sensor1[0],sensor2[0])
 
-                    ### degree values vs 0 -> 1.0 for powersupplies. divide by 360 goes from degree to current
-                    ### maybe. Irl probably not how it works. Fiddle with the values/device order.
-                    ### Above is the biggest thing to work on. If im out of it (consequences of all nighter),
-                    ### please look into this.
-
-                    ### ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-                    ### https://stackoverflow.com/questions/14607640/rotating-a-vector-in-3d-space
-                    ### what I have may look vaguely right for the purposes of a crappy demo, but
-                    ### we oughta [i will] set up proper rotation matrices
-
-                    vec_update = []
-                    for i in [adjustx, adjusty, adjustz]:
-                        vec_update.append(i/360)
-
-                    ax += vec_update[0]
-                    ay += vec_update[1]
-                    az += vec_update[2] #place holder, pretend it makes sense
+                    newv = rotate_vector([ax, ay, az], adjustx, adjusty, adjustz)
+                    ax = newv[0]
+                    ay = newv[1]
+                    az = newv[2]
 
                     VectorWrite(ax,ay,az,True) ### write updated values to second set of powersupplies
-                    
+
                     ### vec_update will be added to list of currents abd ->SHOULD<- directly respond.
                     ### in my dreams ...
                     await asyncio.sleep(.2)  # Read every .2 seconds, should probably decrease for more accurate pid
@@ -185,7 +197,7 @@ async def run(addresses):
 #####CALL#####
 def main():
     xcon = PIcontroller() #init for each axis. One of these isn't needed
-    ycon = PIcontroller() #as gravity restrains the motion, but I won't know which it is until 
+    ycon = PIcontroller() #as gravity restrains the motion, but I won't know which it is until
     zcon = PIcontroller() #I can test
     consolebrick()
 
@@ -217,4 +229,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
