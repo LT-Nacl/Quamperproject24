@@ -17,6 +17,7 @@ import time
 import pyvisa
 import asyncio
 from bleak import BleakClient
+from numpy import matmul
 ax = 0.0
 ay = 0.0
 az = 0.0
@@ -139,6 +140,9 @@ async def run(addresses):
 
                     ### ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+                    ### https://stackoverflow.com/questions/14607640/rotating-a-vector-in-3d-space
+                    ### what I have may look vaguely right for the purposes of a crappy demo, but
+                    ### we oughta set up proper rotation matrices
 
                     vec_update = []
                     for i in [adjustx, adjusty, adjustz]:
