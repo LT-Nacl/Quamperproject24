@@ -2,7 +2,8 @@
 #### UNFINISHED :: DO NOT RUN WITH > 3 SUPPLIES (or at all) ####
 ####        COMPLETELY UNTESTED POWERSUPPLY FUNCTIONS       ####
 
-
+import time
+import pyvisa
 import asyncio
 from bleak import BleakClient
 
@@ -90,7 +91,8 @@ async def run(addresses):
                             data_list[n] = float(data_list[n])
                         else:
                             data_list[n] = int(data_list[n]) # to use inbuilt index, i dont want to work with addr
-                    if data_list[0] = 1:
+                        n += 1
+                    if data_list[0] == 1:
                         sensor1 = data_list
                     else:
                         sensor2 = data_list
