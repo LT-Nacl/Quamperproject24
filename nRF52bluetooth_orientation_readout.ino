@@ -22,7 +22,7 @@ void setup() {
   Serial.begin(9600);
   while (!Serial);
 
-  checks
+  //checks
   if (!BLE.begin()) {
     Serial.println("Starting BLE failed!");
     while (1);
