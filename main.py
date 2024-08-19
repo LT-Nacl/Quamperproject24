@@ -21,6 +21,11 @@ from numpy import matmul
 ax = 0.0
 ay = 0.0
 az = 0.0
+###PID WEIGHTS###
+pgain = 1 
+igain = 1 
+dgain = 1
+###TUNE THESE#### please :)
 # Define the UUIDs of the BLE service and characteristic
 SERVICE_UUID = "12345678-1234-5678-1234-56789abcdef0"
 CHARACTERISTIC_UUID = "12345678-1234-5678-1234-56789abcdef1"
@@ -72,7 +77,7 @@ def powersup(voltage, currentlim, device):
 
 
 #####CONTROL LOOP#####
-class PIcontroller:
+class PIcontroller: ### look, I know the method/class name isn't updated.
     def __init__(self):
         self.errors = []
         print("init!")
@@ -142,7 +147,7 @@ async def run(addresses):
 
                     ### https://stackoverflow.com/questions/14607640/rotating-a-vector-in-3d-space
                     ### what I have may look vaguely right for the purposes of a crappy demo, but
-                    ### we oughta set up proper rotation matrices
+                    ### we oughta [i will] set up proper rotation matrices
 
                     vec_update = []
                     for i in [adjustx, adjusty, adjustz]:
@@ -150,13 +155,13 @@ async def run(addresses):
 
                     ax += vec_update[0]
                     ay += vec_update[1]
-                    az += vec_update[2]
+                    az += vec_update[2] #place holder, pretend it makes sense
 
                     VectorWrite(ax,ay,az,True) ### write updated values to second set of powersupplies
                     
                     ### vec_update will be added to list of currents abd ->SHOULD<- directly respond.
                     ### in my dreams ...
-                    await asyncio.sleep(.2)  # Read every .2 seconds
+                    await asyncio.sleep(.2)  # Read every .2 seconds, should probably decrease for more accurate pid
                 ##### MAIN LOOP #####
 
 
