@@ -73,7 +73,7 @@ void loop() {
   unsigned long currentMillis = millis();
 
   //ids so python split method can be called and sensors are easily distinguised
-  message = 'ID1,' + String(pitch) + ',' + String(roll) + ',' + String(yaw);
+  message = '1,' + String(pitch) + ',' + String(roll) + ',' + String(yaw);
   if (currentMillis - lastUpdate >= 200) {
     lastUpdate = currentMillis;
     myCharacteristic.setValue(message);
