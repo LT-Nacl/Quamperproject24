@@ -1,3 +1,3 @@
-Bloch sphere control, and later readout. 
+QEC demo by Leo Titievsky
 
-Please install NI-VISA and Pyvisa
+Please install NI-VISA and all python dependencies. 
