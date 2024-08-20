@@ -1,4 +1,4 @@
-####        COMPLETELY UNTESTED POWERSUPPLY CODE            ####
+
 
 
 import time
