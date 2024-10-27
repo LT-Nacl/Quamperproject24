@@ -31,7 +31,7 @@ class PIcontroller:
         return(npv)
 
 
-def PIDTEST()
+def PIDTEST():
     theta0 =float(input("INIT THETA0: "))
     phi0 =float(input("INIT PHI0: "))
 
