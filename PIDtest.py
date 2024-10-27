@@ -3,8 +3,6 @@ import matplotlib.pyplot as pyplot
 import time
 import random
 import numpy as np
-import pyvisa
-import bluetooth
 
 ###values###
 pgain = 1
